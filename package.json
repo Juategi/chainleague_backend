@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "coinbase-commerce-node": "^1.0.4",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "express": "^4.17.2",
+    "firebase-admin": "^10.0.1",
+    "helmet": "^5.0.1",
+    "request": "^2.88.2"
+  }
+}
