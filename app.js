@@ -83,7 +83,7 @@ const check = async (request, response) => {
     const {user} = request.headers;
     const chargeData = {
         name: 'Chain League',
-        description: 'Buy Chain League tokens',
+        description:'Buy Chain League tokens, send the amount you want, you will receive the CLG tokens according to the value of the cryptocurrencies you send.',
         logo_url: 'https://res.cloudinary.com/commerce/image/upload/v1642528875/ty54qczfmrbljolaz38w.png',
         pricing_type: 'no_price',
         metadata: {
@@ -91,9 +91,7 @@ const check = async (request, response) => {
         },
       };
   
-    const charge = await Charge.create(chargeData);
-    //console.log(charge);
-  
+    const charge = await Charge.create(chargeData);  
     response.status(200).json(charge)
 }
 
@@ -109,7 +107,9 @@ const be = async (req, response) => {
   */
   //var ranBodyC = JSON.stringify({"id":"00000000-0000-0000-0000-000000000000","scheduled_for":"2018-01-01T00:40:00Z","attempt_number":1,"event":{"id":"00000000-0000-0000-0000-000000000000","resource":"event","type":"charge:confirmed","api_version":"2018-03-22","created_at":"2018-01-01T00:40:00Z","data":{"code":"AAAAAAAA","id":"00000000-0000-0000-0000-000000000000","resource":"charge","name":"The Sovereign Individual","description":"Mastering the Transition to the Information Age","hosted_url":"https://commerce.coinbase.com/charges/AAAAAAAA","created_at":"2018-01-01T00:00:00Z","confirmed_at":"2018-01-01T00:40:00Z","expires_at":"2018-01-01T01:00:00Z","support_email":"test@test.test","timeline":[{"time":"2018-01-01T00:00:00Z","status":"NEW"},{"status":"PENDING","payment":{"network":"ethereum","transaction_id":"0x0000000000000000000000000000000000000000000000000000000000000000"},"time":"2018-01-01T00:30:00Z"},{"status":"COMPLETED","payment":{"network":"ethereum","transaction_id":"0x0000000000000000000000000000000000000000000000000000000000000000"},"time":"2018-01-01T00:40:00Z"}],"metadata":{},"payment_threshold":{"overpayment_absolute_threshold":{"amount":"15.00","currency":"USD"},"overpayment_relative_threshold":"0.1","underpayment_absolute_threshold":{"amount":"5.00","currency":"USD"},"underpayment_relative_threshold":"0.1"},"pricing":{"local":{"amount":"100.00","currency":"USD"},"bitcoin":{"amount":"1.00000000","currency":"BTC"},"ethereum":{"amount":"10.000000000","currency":"ETH"},"usdc":{"amount":"10.000000","currency":"USDC"},"litecoin":{"amount":"2.00000000","currency":"LTC"}},"pricing_type":"fixed_price","payments":[{"network":"ethereum","transaction_id":"0x0000000000000000000000000000000000000000000000000000000000000000","status":"CONFIRMED","detected_at":"2018-01-01T00:30:00Z","value":{"local":{"amount":"100.0","currency":"USD"},"crypto":{"amount":"10.00","currency":"ETH"}},"block":{"height":100,"hash":"0x0000000000000000000000000000000000000000000000000000000000000000","confirmations_accumulated":8,"confirmations_required":2}}],"addresses":{"bitcoin":"1000000000000000000000000000000000","ethereum":"0x0000000000000000000000000000000000000000","usdc":"0x0000000000000000000000000000000000000000","litecoin":"3000000000000000000000000000000000"},"exchange_rates":{"BCH-USD":"1000.0","BTC-USD":"100.0","ETH-USD":"10.0","JPY-USD":"0.5","LTC-USD":"50.0","TST-USD":"0.5","BEER-USD":"0.1"},"local_exchange_rates":{"BCH-USD":"1000.0","BTC-USD":"100.0","ETH-USD":"10.0","JPY-USD":"0.5","LTC-USD":"50.0","TST-USD":"0.5","BEER-USD":"0.1"},"pwcb_only":false}}})
   var conf = {"id":"00000000-0000-0000-0000-000000000000","scheduled_for":"2018-01-01T00:40:00Z","attempt_number":1,"event":{"id":"00000000-0000-0000-0000-000000000000","resource":"event","type":"charge:confirmed","api_version":"2018-03-22","created_at":"2018-01-01T00:40:00Z","data":{"code":"AAAAAAAA","id":"00000000-0000-0000-0000-000000000000","resource":"charge","name":"The Sovereign Individual","description":"Mastering the Transition to the Information Age","hosted_url":"https://commerce.coinbase.com/charges/AAAAAAAA","created_at":"2018-01-01T00:00:00Z","confirmed_at":"2018-01-01T00:40:00Z","expires_at":"2018-01-01T01:00:00Z","support_email":"test@test.test","timeline":[{"time":"2018-01-01T00:00:00Z","status":"NEW"},{"status":"PENDING","payment":{"network":"ethereum","transaction_id":"0x0000000000000000000000000000000000000000000000000000000000000000"},"time":"2018-01-01T00:30:00Z"},{"status":"COMPLETED","payment":{"network":"ethereum","transaction_id":"0x0000000000000000000000000000000000000000000000000000000000000000"},"time":"2018-01-01T00:40:00Z"}],"metadata":{},"payment_threshold":{"overpayment_absolute_threshold":{"amount":"15.00","currency":"USD"},"overpayment_relative_threshold":"0.1","underpayment_absolute_threshold":{"amount":"5.00","currency":"USD"},"underpayment_relative_threshold":"0.1"},"pricing":{"local":{"amount":"100.00","currency":"USD"},"bitcoin":{"amount":"1.00000000","currency":"BTC"},"ethereum":{"amount":"10.000000000","currency":"ETH"},"usdc":{"amount":"10.000000","currency":"USDC"},"litecoin":{"amount":"2.00000000","currency":"LTC"}},"pricing_type":"fixed_price","payments":[{"network":"ethereum","transaction_id":"0x0000000000000000000000000000000000000000000000000000000000000000","status":"CONFIRMED","detected_at":"2018-01-01T00:30:00Z","value":{"local":{"amount":"100.0","currency":"USD"},"crypto":{"amount":"10.00","currency":"ETH"}},"block":{"height":100,"hash":"0x0000000000000000000000000000000000000000000000000000000000000000","confirmations_accumulated":8,"confirmations_required":2}}],"addresses":{"bitcoin":"1000000000000000000000000000000000","ethereum":"0x0000000000000000000000000000000000000000","usdc":"0x0000000000000000000000000000000000000000","litecoin":"3000000000000000000000000000000000"},"exchange_rates":{"BCH-USD":"1000.0","BTC-USD":"100.0","ETH-USD":"10.0","JPY-USD":"0.5","LTC-USD":"50.0","TST-USD":"0.5","BEER-USD":"0.1"},"local_exchange_rates":{"BCH-USD":"1000.0","BTC-USD":"100.0","ETH-USD":"10.0","JPY-USD":"0.5","LTC-USD":"50.0","TST-USD":"0.5","BEER-USD":"0.1"},"pwcb_only":false}}}
-  console.log(conf["id"])
+  console.log(conf["event"]["data"]["metadata"]["user"])
+  console.log(parseFloat(conf["event"]["data"]["payments"]["0"]["value"]["local"]["amount"]))
+  console.log(conf["event"]["data"]["id"])
   try {
     /*const event = Webhook.verifyEventBody(rawBodyP, signature, webhookSecret);
     console.log(event.data.metadata)
@@ -129,8 +129,8 @@ const be = async (req, response) => {
     }
     */
 
-    if (false) {
-      // TODO Averiguar compra y usuario y transaccion coinbase id
+    if (true) {
+      // Averiguar compra y usuario y transaccion coinbase id
       var user = "llWpeR6CPQNM4UQq2MkZOVyOwys1"
       var usd = 16000
       var transaction_id = "1"
