@@ -128,8 +128,13 @@ const be = async (req, response) => {
       //Probablemente nada
     }
     */
-
-    if (true) {
+    doc_ref = db.collection("/ordersdev")
+    const snap = await doc_ref.where('transaction', '==', "WN9KGZRK")
+    .where('user', '==', "pDUIB1vTNygJTzE6bDRu0kCZWX53").get();
+      snap.forEach(doc => {
+        doc_ref.doc(doc.id).delete()
+      });
+    if (false) {
       // Averiguar compra y usuario y transaccion coinbase id
       var user = "llWpeR6CPQNM4UQq2MkZOVyOwys1"
       var usd = 16000

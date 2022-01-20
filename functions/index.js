@@ -96,26 +96,42 @@ exports.finalwebhookHandler = functions.https.onRequest(async (req, res) => {
     var rawBody = req.body
     const event = Webhook.verifyEventBody(req.rawBody, req.headers['x-cc-webhook-signature'], webhookSecret);
     //console.log(rawBody)
-    if (event.type === 'charge:pending') {
-      var user = rawBody["event"]["data"]["metadata"]["user"]
-      //var usd = parseFloat(rawBody["event"]["data"]["payments"][0]["value"]["local"]["amount"])
-      var transaction_id = rawBody["event"]["data"]["id"]
-      console.log("User " + user)
-      console.log("Usd " + usd)
-      console.log("id " + transaction_id)
-    }
-    if (event.type === 'charge:confirmed') {
+    var date = (new Date()).toISOString().replace("T", " ")
+    date = date.substring(0, date.length - 5)
+    doc_ref = db.collection("/ordersdev")
 
-      // Averiguar compra y usuario y transaccion coinbase id
-      var user = rawBody["event"]["data"]["metadata"]["user"]
-      var usd = parseFloat(rawBody["event"]["data"]["payments"][0]["value"]["local"]["amount"])
-      var transaction_id = rawBody["event"]["data"]["id"]
-      console.log("User " + user)
-      console.log("Usd " + usd)
-      console.log("id " + transaction_id)
+    // Averiguar compra y usuario y transaccion coinbase id
+    var user = rawBody["event"]["data"]["metadata"]["user"]
+    var usd = parseFloat(rawBody["event"]["data"]["payments"][0]["value"]["local"]["amount"])
+    var transaction_id = rawBody["event"]["data"]["code"]
+    console.log("User " + user)
+    console.log("Usd " + usd)
+    console.log("id " + transaction_id)
+
+    if (event.type === 'charge:pending') {    
+      doc_ref.add({
+        'state': "processing",
+        'transaction': transaction_id,
+        'user': user,
+        "time" : date
+    })
+
+    }
+    if (event.type === 'charge:failed') {
+      // Borrar el pending
+      const snap = await doc_ref.where('transaction', '==', transaction_id).where('user', '==', user).get();
+      snap.forEach(doc => {
+        doc_ref.doc(doc.id).delete()
+      });
+    }
+    if (event.type === 'charge:confirmed') {      
+      // Borrar el pending
+      const snap = await doc_ref.where('transaction', '==', transaction_id).where('user', '==', user).get();
+      snap.forEach(doc => {
+        doc_ref.doc(doc.id).delete()
+      });
+
       // Checkear lock bucle
-      var date = (new Date()).toISOString().replace("T", " ")
-      date = date.substring(0, date.length - 5)
       var metaid = ""
       while(true){
         var snapshot = await db.collection("/metadev").limit(1).get();
@@ -153,7 +169,6 @@ exports.finalwebhookHandler = functions.https.onRequest(async (req, res) => {
       var phase_tokens = meta['phase_tokens']
 
       // Crear pedido
-      doc_ref = db.collection("/ordersdev")
       if(userTokens + phase_tokens >= ico[phase][1]){
         //Primer order
         doc_ref.add({
@@ -238,6 +253,8 @@ exports.finalwebhookHandler = functions.https.onRequest(async (req, res) => {
         'clg_price' : ico[phase][0],
         'lock' : false
     })
+
+    console.log("All done!")
   }
     
   } catch (error) {
