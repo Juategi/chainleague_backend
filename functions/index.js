@@ -1,52 +1,15 @@
 const functions = require('firebase-functions');
-const { initializeApp, applicationDefault, cert } = require('firebase-admin/app');
-const { getFirestore, Timestamp, FieldValue } = require('firebase-admin/firestore');
-initializeApp();
-const db = getFirestore();
+//const { initializeApp, applicationDefault, cert } = require('firebase-admin/app');
+//const { getFirestore, Timestamp, FieldValue } = require('firebase-admin/firestore');
+const admin = require('firebase-admin');
 const cors = require('cors')({ origin: '*' });
 const request = require('request');
 const { Client, Webhook, resources } = require('coinbase-commerce-node');
 const coinbaseSecret = '07ed1dbd-c14a-47e2-811f-cd343ca9a3c3';
-Client.init(coinbaseSecret);
 const { Charge } = resources;
 
-const ico = {
-  11: [0.0025, 2000000],
-  12: [0.0030, 5000000],
-  13: [0.0035, 7000000],
-  14: [0.0040, 9000000],
-  21: [0.0045, 10000000],
-  22: [0.0050, 11000000],
-  23: [0.0055, 12000000],
-  24: [0.0060, 13000000],
-  31: [0.0065, 14000000],
-  32: [0.0070, 15000000],
-  33: [0.0075, 16000000],
-  34: [0.0080, 17000000],
-  41: [0.0085, 18000000],
-  42: [0.0090, 19000000],
-  43: [0.0095, 20000000],
-  44: [0.0100, 21000000],
-  51: [0.0105, 22000000],
-  52: [0.0110, 23000000],
-  53: [0.0115, 24000000],
-  54: [0.0120, 25000000],
-  61: [0.0125, 26000000],
-  62: [0.0130, 27000000],
-  63: [0.0135, 28000000],
-  64: [0.0140, 28000000],
-  71: [0.0145, 29000000],
-  72: [0.0150, 29000000],
-  73: [0.0155, 30000000],
-}
+Client.init(coinbaseSecret);
 
-function sleep(milliseconds) {
-  const date = Date.now();
-  let currentDate = null;
-  do {
-    currentDate = Date.now();
-  } while (currentDate - date < milliseconds);
-}
 
 exports.createCharge = functions.https.onRequest((req, res) => {
   cors(req, res, async () => {
@@ -66,7 +29,6 @@ exports.createCharge = functions.https.onRequest((req, res) => {
   });
 });
 
-//http://62.43.69.155:5000/chain-league/us-central1/webhookHandler
 exports.webhookHandler = functions.https.onRequest(async (req, res) => {
   
   const url ='http://62.43.69.155:5000/b'
@@ -87,11 +49,61 @@ exports.webhookHandler = functions.https.onRequest(async (req, res) => {
   res.status(200).send("Success");
 });
 
+
 exports.finalwebhookHandler = functions.https.onRequest(async (req, res) => {
+  //initializeApp();
+  //const db = getFirestore();
+  admin.initializeApp();
+  var db = admin.getFirestore();
+  console.log("INIT")
+  function sleep(milliseconds) {
+    const date = Date.now();
+    let currentDate = null;
+    do {
+      currentDate = Date.now();
+    } while (currentDate - date < milliseconds);
+  }
+  const ico = {
+    11: [0.0025, 2000000],
+    12: [0.0030, 5000000],
+    13: [0.0035, 7000000],
+    14: [0.0040, 9000000],
+    21: [0.0045, 10000000],
+    22: [0.0050, 11000000],
+    23: [0.0055, 12000000],
+    24: [0.0060, 13000000],
+    31: [0.0065, 14000000],
+    32: [0.0070, 15000000],
+    33: [0.0075, 16000000],
+    34: [0.0080, 17000000],
+    41: [0.0085, 18000000],
+    42: [0.0090, 19000000],
+    43: [0.0095, 20000000],
+    44: [0.0100, 21000000],
+    51: [0.0105, 22000000],
+    52: [0.0110, 23000000],
+    53: [0.0115, 24000000],
+    54: [0.0120, 25000000],
+    61: [0.0125, 26000000],
+    62: [0.0130, 27000000],
+    63: [0.0135, 28000000],
+    64: [0.0140, 28000000],
+    71: [0.0145, 29000000],
+    72: [0.0150, 29000000],
+    73: [0.0155, 30000000],
+  }
   try {
     const webhookSecret = 'b01ddab2-33ce-4e2a-8a38-f8872cc639cf';
     var rawBody = req.rawBody
     const event = Webhook.verifyEventBody(rawBody, req.headers['x-cc-webhook-signature'], webhookSecret);
+    if (event.type === 'charge:pending') {
+      var user = rawBody["event"]["data"]["metadata"]["user"]
+      var usd = parseFloat(rawBody["event"]["data"]["payments"]["0"]["value"]["local"]["amount"])
+      var transaction_id = rawBody["event"]["data"]["id"]
+      console.log("User " + user)
+      console.log("Usd " + usd)
+      console.log("id " + transaction_id)
+    }
     if (event.type === 'charge:confirmed') {
 
       // Averiguar compra y usuario y transaccion coinbase id
