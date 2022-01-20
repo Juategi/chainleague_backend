@@ -54,8 +54,7 @@ exports.finalwebhookHandler = functions.https.onRequest(async (req, res) => {
   //initializeApp();
   //const db = getFirestore();
   admin.initializeApp();
-  var db = admin.getFirestore();
-  console.log("INIT")
+  var db = admin.firestore();
   function sleep(milliseconds) {
     const date = Date.now();
     let currentDate = null;
@@ -94,11 +93,12 @@ exports.finalwebhookHandler = functions.https.onRequest(async (req, res) => {
   }
   try {
     const webhookSecret = 'b01ddab2-33ce-4e2a-8a38-f8872cc639cf';
-    var rawBody = req.rawBody
-    const event = Webhook.verifyEventBody(rawBody, req.headers['x-cc-webhook-signature'], webhookSecret);
+    var rawBody = req.body
+    const event = Webhook.verifyEventBody(req.rawBody, req.headers['x-cc-webhook-signature'], webhookSecret);
+    //console.log(rawBody)
     if (event.type === 'charge:pending') {
       var user = rawBody["event"]["data"]["metadata"]["user"]
-      var usd = parseFloat(rawBody["event"]["data"]["payments"]["0"]["value"]["local"]["amount"])
+      //var usd = parseFloat(rawBody["event"]["data"]["payments"][0]["value"]["local"]["amount"])
       var transaction_id = rawBody["event"]["data"]["id"]
       console.log("User " + user)
       console.log("Usd " + usd)
@@ -108,9 +108,11 @@ exports.finalwebhookHandler = functions.https.onRequest(async (req, res) => {
 
       // Averiguar compra y usuario y transaccion coinbase id
       var user = rawBody["event"]["data"]["metadata"]["user"]
-      var usd = parseFloat(rawBody["event"]["data"]["payments"]["0"]["value"]["local"]["amount"])
+      var usd = parseFloat(rawBody["event"]["data"]["payments"][0]["value"]["local"]["amount"])
       var transaction_id = rawBody["event"]["data"]["id"]
-
+      console.log("User " + user)
+      console.log("Usd " + usd)
+      console.log("id " + transaction_id)
       // Checkear lock bucle
       var date = (new Date()).toISOString().replace("T", " ")
       date = date.substring(0, date.length - 5)
@@ -237,11 +239,10 @@ exports.finalwebhookHandler = functions.https.onRequest(async (req, res) => {
         'lock' : false
     })
   }
-
-  res.send(`success`);
     
   } catch (error) {
     res.status(400).send('failure!');
     console.log(error)
   }
+  res.send(`success`);
 });
