@@ -102,10 +102,8 @@ exports.finalwebhookHandler = functions.https.onRequest(async (req, res) => {
 
     // Averiguar compra y usuario y transaccion coinbase id
     var user = rawBody["event"]["data"]["metadata"]["user"]
-    var usd = parseFloat(rawBody["event"]["data"]["payments"][0]["value"]["local"]["amount"])
     var transaction_id = rawBody["event"]["data"]["code"]
     console.log("User " + user)
-    console.log("Usd " + usd)
     console.log("id " + transaction_id)
 
     if (event.type === 'charge:pending') {    
@@ -118,13 +116,18 @@ exports.finalwebhookHandler = functions.https.onRequest(async (req, res) => {
 
     }
     if (event.type === 'charge:failed') {
-      // Borrar el pending
+      // Actualizar a failed
       const snap = await doc_ref.where('transaction', '==', transaction_id).where('user', '==', user).get();
       snap.forEach(doc => {
-        doc_ref.doc(doc.id).delete()
+        doc_ref.doc(doc.id).update({
+          'state': "failed",
+        })
       });
     }
-    if (event.type === 'charge:confirmed') {      
+    if (event.type === 'charge:confirmed') {  
+      var usd = parseFloat(rawBody["event"]["data"]["payments"][0]["value"]["local"]["amount"])    
+      console.log("Usd " + usd)
+
       // Borrar el pending
       const snap = await doc_ref.where('transaction', '==', transaction_id).where('user', '==', user).get();
       snap.forEach(doc => {
