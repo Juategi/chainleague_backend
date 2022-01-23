@@ -29,7 +29,7 @@ exports.createCharge = functions.https.onRequest((req, res) => {
   });
 });
 
-exports.webhookHandler = functions.https.onRequest(async (req, res) => {
+webhookHandler = functions.https.onRequest(async (req, res) => {
   
   const url ='http://62.43.69.155:5000/b'
   console.log("raw: " + req.rawBody)
@@ -92,13 +92,20 @@ exports.finalwebhookHandler = functions.https.onRequest(async (req, res) => {
     73: [0.0155, 30000000],
   }
   try {
+    var test = false
+    var ordersenv = "/orders"
+    var metaenv = "/meta"
+    if(test){
+      ordersenv = "/ordersdev"
+      metaenv = "/metadev"
+    }
     const webhookSecret = 'b01ddab2-33ce-4e2a-8a38-f8872cc639cf';
     var rawBody = req.body
     const event = Webhook.verifyEventBody(req.rawBody, req.headers['x-cc-webhook-signature'], webhookSecret);
     //console.log(rawBody)
     var date = (new Date()).toISOString().replace("T", " ")
     date = date.substring(0, date.length - 5)
-    doc_ref = db.collection("/ordersdev")
+    doc_ref = db.collection(ordersenv)
 
     // Averiguar compra y usuario y transaccion coinbase id
     var user = rawBody["event"]["data"]["metadata"]["user"]
@@ -137,7 +144,7 @@ exports.finalwebhookHandler = functions.https.onRequest(async (req, res) => {
       // Checkear lock bucle
       var metaid = ""
       while(true){
-        var snapshot = await db.collection("/metadev").limit(1).get();
+        var snapshot = await db.collection(metaenv).limit(1).get();
         var meta = {}
         snapshot.forEach((doc) => {
           meta = doc.data()
@@ -152,14 +159,14 @@ exports.finalwebhookHandler = functions.https.onRequest(async (req, res) => {
       }
 
       // Creamos un lock
-      var metadoc = db.collection("/metadev").doc(metaid)
+      var metadoc = db.collection(metaenv).doc(metaid)
       metadoc.update(
         {
           "lock" : true
         }
       )
       // Cogemos la info meta
-      var snapshot = await db.collection("/metadev").limit(1).get();
+      var snapshot = await db.collection(metaenv).limit(1).get();
       var meta = {}
       snapshot.forEach((doc) => {
         meta = doc.data()
