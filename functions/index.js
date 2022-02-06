@@ -243,18 +243,30 @@ exports.finalwebhookHandler = functions.https.onRequest(async (req, res) => {
         
       }
     // Referral tokens
-    var snapref = await db.collection('users').doc(user).get()
-    var userRef = snapref.data();
-    if (userRef['referal'] != ""){
-        doc_ref.add({
+    try{
+      var snapref = await db.collection('users').doc(user).get()
+      var userRef = snapref.data();
+      if (userRef['referal'] != ""){
+          doc_ref.add({
+              'state': "done",
+              'transaction': "referral",
+              'clg' : Math.floor(finalTokens/10),
+              'user': userRef['referal'].substring(4),
+              'time': date
+          }) 
+
+          doc_ref.add({
             'state': "done",
             'transaction': "referral",
-            'clg' : Math.floor(finalTokens/10),
-            'user': userRef['referal'].substring(4),
-            'time': date
-        }) 
+            'clg' :  Math.floor(finalTokens/20),
+            'user': user,
+            "time" : date
+        })
+      }
+    } catch (error) {
+      console.log("error on referral")
     }
-     
+    
     // Actualizar la fase y la inversion y cerrar lock
     metadoc.update({
         'invested': meta['invested'] + usd, 
